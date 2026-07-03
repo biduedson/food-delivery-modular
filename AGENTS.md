@@ -2,25 +2,21 @@
 
 ## Visão Geral do Projeto
 
-Este é um projeto **CustomerApi** construído com:
-- **Clean Architecture** (Domain, Application, Infrastructure, WebApi, Query)
+Este é um projeto **food-delivery-modular** com foco em **BuildingBlocks** reutilizáveis, hoje começando por:
+- **BuildingBlocks.Abstractions** como biblioteca compartilhada
+- **.NET 9**
+- **Clean Architecture** aplicada de forma modular
 - **CQRS + Event Sourcing**
-- **MediatR + FluentValidation**
-- **Entity Framework Core + SQLite** (testes)
-- **Docker + docker-compose**
-- **xUnit** para testes unitários
+- **MediatR**
+- **Entity Framework Core**
+- **MongoDB**
+- **xUnit** para testes quando aplicável
 
-Estrutura de pastas:
+Estrutura de pastas atual:
 ```
 src/
-├── CustomerApi.Application      → Commands, Handlers, Behaviors, Validators
-├── CustomerApi.Core             → Interfaces, abstrações compartilhadas
-├── CustomerApi.Domain           → Entidades, Value Objects, Domain Events
-├── CustomerApi.Infrastructure   → DbContext, Repositórios, Serviços externos
-├── CustomerApi.Query            → Queries, Read models
-└── CustomerApi.WebApi           → Endpoints, Controllers, Program.cs
-tests/
-└── CustomerApi.UnitTests        → Testes unitários com xUnit + SQLite in-memory
+└── BuildingBlocks/
+    └── BuildingBlocks.Abstractions   → Contratos, abstrações e utilitários compartilhados
 ```
 
 ---
@@ -66,23 +62,28 @@ tests/
 
 | Escopo | Representa |
 |---|---|
-| `domain` | CustomerApi.Domain |
-| `application` | CustomerApi.Application |
-| `infrastructure` | CustomerApi.Infrastructure |
-| `query` | CustomerApi.Query |
-| `webapi` | CustomerApi.WebApi |
-| `tests` | CustomerApi.UnitTests |
-| `config` | .editorconfig, docker-compose, nuget.config |
-| `ci` | .github/workflows |
+| `abstractions` | BuildingBlocks.Abstractions |
+| `caching` | Cache e contratos relacionados |
+| `cqrs` | Commands, Queries, Events e handlers |
+| `domain` | Entidades, value objects e regras de domínio |
+| `messaging` | Mensageria, contexto e persistência de mensagens |
+| `persistence` | EfCore, EventStore e Mongo |
+| `scheduling` | Agendamento e jobs |
+| `serialization` | Serialização e desserialização |
+| `types` | Tipos compartilhados |
+| `web` | Minimal API, módulos e storage web |
+| `config` | `Directory.Build.props`, `Directory.Packages.props`, `Directory.Build.targets` |
+| `tests` | Testes automatizados |
+| `ci` | GitHub Actions e automação |
 
 ### Exemplos corretos:
 ```
-feat(domain): add Customer entity with Email value object
-fix(application): fix handler validation for empty name
-refactor(infrastructure): extract DbContext config to separate class
-test(tests): add tests for CreateCustomerCommandHandler
-chore(config): update editorconfig naming rules
-feat(webapi): add GET /customers/{id} endpoint
+feat(abstractions): add cache manager contract
+fix(caching): improve cache key handling
+refactor(persistence): extract mongo abstractions
+test(tests): add coverage for cache manager
+chore(config): update central package versions
+feat(web): add minimal api module contracts
 ```
 
 ### Exemplos errados:
@@ -118,30 +119,22 @@ Analise cada arquivo e pergunte:
 
 ### 3. Exemplos de agrupamento correto
 
-**Cenário: você adicionou uma feature completa**
+**Cenário: você adicionou uma abstração compartilhada**
 ```
-# commit 1 — a entidade de domínio
-git add src/CustomerApi.Domain/
-git commit -m "feat(domain): add Customer entity"
+# commit 1 — contrato ou tipo de abstração
+git add src/BuildingBlocks/BuildingBlocks.Abstractions/
+git commit -m "feat(abstractions): add shared cache contract"
 
-# commit 2 — o command e handler
-git add src/CustomerApi.Application/
-git commit -m "feat(application): add CreateCustomerCommand and handler"
-
-# commit 3 — o endpoint
-git add src/CustomerApi.WebApi/
-git commit -m "feat(webapi): add POST /customers endpoint"
-
-# commit 4 — os testes
-git add tests/
-git commit -m "test(tests): add unit tests for CreateCustomer"
+# commit 2 — ajuste de configuração
+git add src/Directory.Packages.props src/Directory.Build.props src/Directory.Build.targets
+git commit -m "chore(config): centralize build settings"
 ```
 
-**Cenário: você só corrigiu um bug no handler**
+**Cenário: você só corrigiu um bug em uma abstração**
 ```
 # um commit só — mudança pequena e focada
-git add src/CustomerApi.Application/Handlers/CreateCustomerHandler.cs
-git commit -m "fix(application): fix duplicate email validation in handler"
+git add src/BuildingBlocks/BuildingBlocks.Abstractions/Caching/ICacheManager.cs
+git commit -m "fix(caching): improve cache manager contract"
 ```
 
 ### 4. Nunca misture esses contextos no mesmo commit
@@ -165,7 +158,7 @@ git commit -m "fix(application): fix duplicate email validation in handler"
 
 ### Padrões obrigatórios
 - Sempre usar `var` quando o tipo for aparente
-- Sempre usar `file-scoped namespace`: `namespace CustomerApi.Domain;`
+- Sempre usar `file-scoped namespace`
 - Sempre usar `readonly` em campos que não mudam após o construtor
 - Nunca deixar `using` desnecessário
 - Sempre que criar um Command, criar o Validator correspondente
