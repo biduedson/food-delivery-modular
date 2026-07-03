@@ -1,1 +1,7 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/buildings-blocks/">
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Abstractions/BuildingBlocks.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
