@@ -1,6 +1,8 @@
 namespace BuildingBlocks.Abstractions.Persistence;
 
-// Ref: https://github.com/thangchung/clean-architecture-dotnet/blob/main/src/N8T.Core/Domain/Cqrs.cs
+/// <summary>
+/// Interface marcadora para requisições que devem ser executadas dentro de uma transação.
+/// </summary>
 public interface ITxRequest
 {
 }
